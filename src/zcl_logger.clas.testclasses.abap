@@ -57,10 +57,19 @@ CLASS lcl_test DEFINITION FOR TESTING
       can_create_anon_log FOR TESTING,
       can_create_named_log FOR TESTING,
       can_reopen_log FOR TESTING,
+<<<<<<< HEAD
       can_create_expiring_log_days FOR TESTING,
       can_create_expiring_log_date FOR TESTING,
       can_open_or_create FOR TESTING,
       can_add_log_context FOR TESTING,
+=======
+      can_create_expiring_log_days FOR TESTING RAISING cx_static_check,
+      can_create_expiring_log_date FOR TESTING RAISING cx_static_check,
+      can_open_or_create FOR TESTING RAISING cx_static_check,
+
+      can_add_log_context FOR TESTING RAISING cx_static_check,
+
+>>>>>>> cf40865 (introduce zcx_logger_error and improve error handl)
       can_add_to_log FOR TESTING,
       can_add_to_named_log FOR TESTING,
       auto_saves_named_log FOR TESTING,
@@ -93,27 +102,42 @@ CLASS lcl_test DEFINITION FOR TESTING
       can_log_string_and_export FOR TESTING,
       can_change_description FOR TESTING RAISING cx_static_check,
       can_log_callback_params FOR TESTING RAISING cx_static_check,
-      can_log_log.
+      can_log_log,
+      cant_create_non_existing_log FOR TESTING.
 
 ENDCLASS.
 
 CLASS lcl_test IMPLEMENTATION.
 
   METHOD class_setup.
-    zcl_logger=>new(
-      object = 'ABAPUNIT'
-      subobject = ''
-      desc = 'Log saved in database' )->add( 'This message is in the database' ).
+
+    TRY.
+        zcl_logger=>new(
+            object = 'ABAPUNIT'
+            subobject = ''
+            desc = 'Log saved in database' )->add( 'This message is in the database' ).
+
+      CATCH zcx_logger_error.
+        cl_abap_unit_assert=>fail( |Please create log object and sub object| ).
+    ENDTRY.
+
   ENDMETHOD.
 
   METHOD setup.
-    anon_log  = zcl_logger=>new( ).
-    named_log = zcl_logger=>new( object = 'ABAPUNIT'
-                                 subobject = ''
-                                 desc = `Hey it's a log` ).
-    reopened_log = zcl_logger=>open( object = 'ABAPUNIT'
+
+    TRY.
+        anon_log  = zcl_logger=>new( ).
+        named_log = zcl_logger=>new( object = 'ABAPUNIT'
                                      subobject = ''
-                                     desc = 'Log saved in database' ).
+                                     desc = `Hey it's a log` ).
+        reopened_log = zcl_logger=>open( object = 'ABAPUNIT'
+                                         subobject = ''
+                                         desc = 'Log saved in database' ).
+
+      CATCH zcx_logger_error.
+        cl_abap_unit_assert=>fail( |Please create log object and sub object| ).
+    ENDTRY.
+
   ENDMETHOD.
 
   METHOD can_create_anon_log.
@@ -1587,4 +1611,22 @@ CLASS lcl_test IMPLEMENTATION.
       msg = 'Did not return correct message type' ).
   ENDMETHOD.
 
-ENDCLASS.
+  METHOD cant_create_non_existing_log.
+
+    DATA: error TYPE REF TO zcx_logger_error.
+
+    TRY.
+        named_log = zcl_logger=>new( object    = 'TEST'
+                                     subobject = 'LOGGER'
+                                     auto_save = abap_false ).
+
+        cl_abap_unit_assert=>fail( ).
+
+      CATCH zcx_logger_error INTO error.
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_bound( error ).
+
+  ENDMETHOD.
+
+ENDCLASS.       "lcl_Test

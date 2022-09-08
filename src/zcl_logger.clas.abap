@@ -44,7 +44,9 @@ CLASS zcl_logger DEFINITION
         !auto_save      TYPE abap_bool OPTIONAL
         !second_db_conn TYPE abap_bool DEFAULT abap_true
       RETURNING
-        VALUE(r_log)    TYPE REF TO zcl_logger.
+        VALUE(r_log)    TYPE REF TO zcl_logger
+      RAISING
+        zcx_logger_error.
 
     "! Reopens an already existing log.
     "! For backwards compatibility only! Use ZCL_LOGGER_FACTORY instead.
@@ -56,7 +58,9 @@ CLASS zcl_logger DEFINITION
         !create_if_does_not_exist TYPE abap_bool DEFAULT abap_false
         !auto_save                TYPE abap_bool OPTIONAL
       RETURNING
-        VALUE(r_log)              TYPE REF TO zcl_logger.
+        VALUE(r_log)              TYPE REF TO zcl_logger
+      RAISING
+        zcx_logger_error.
 
   PROTECTED SECTION.
 *"* protected components of class ZCL_LOGGER

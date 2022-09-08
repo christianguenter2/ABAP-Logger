@@ -14,7 +14,9 @@ CLASS zcl_logger_factory DEFINITION
         context      TYPE any OPTIONAL
         settings     TYPE REF TO zif_logger_settings OPTIONAL
       RETURNING
-        VALUE(r_log) TYPE REF TO zif_logger.
+        VALUE(r_log) TYPE REF TO zif_logger
+      RAISING
+        zcx_logger_error .
 
     "! Reopens an already existing log.
     CLASS-METHODS open_log
@@ -25,7 +27,9 @@ CLASS zcl_logger_factory DEFINITION
         create_if_does_not_exist TYPE abap_bool DEFAULT abap_false
         settings                 TYPE REF TO zif_logger_settings OPTIONAL
       RETURNING
-        VALUE(r_log)             TYPE REF TO zif_logger.
+        VALUE(r_log)             TYPE REF TO zif_logger
+      RAISING
+        zcx_logger_error.
 
     "! Creates a settings object which can be modified. It can be pass on
     "! the creation of the logger to change its behavior.
@@ -93,17 +97,30 @@ CLASS zcl_logger_factory IMPLEMENTATION.
 
     CALL FUNCTION 'BAL_LOG_CREATE'
       EXPORTING
-        i_s_log      = lo_log->header
+        i_s_log                 = lo_log->header
       IMPORTING
-        e_log_handle = lo_log->handle.
+        e_log_handle            = lo_log->handle
+      EXCEPTIONS
+        log_header_inconsistent = 1
+        OTHERS                  = 2.
+    IF sy-subrc <> 0.
+      zcx_logger_error=>raise_syst( ).
+    ENDIF.
+
 
     " BAL_LOG_CREATE will fill in some additional header data.
     " This FM updates our instance attribute to reflect that.
     CALL FUNCTION 'BAL_LOG_HDR_READ'
       EXPORTING
-        i_log_handle = lo_log->handle
+        i_log_handle  = lo_log->handle
       IMPORTING
-        e_s_log      = lo_log->header.
+        e_s_log       = lo_log->header
+      EXCEPTIONS
+        log_not_found = 1
+        OTHERS        = 2.
+    IF sy-subrc <> 0.
+      zcx_logger_error=>raise_syst( ).
+    ENDIF.
 
     r_log = lo_log.
   ENDMETHOD.
@@ -168,13 +185,27 @@ CLASS zcl_logger_factory IMPLEMENTATION.
 
     CALL FUNCTION 'BAL_DB_LOAD'
       EXPORTING
-        i_t_log_header = found_headers.
+        i_t_log_header     = found_headers
+      EXCEPTIONS
+        no_logs_specified  = 1
+        log_not_found      = 2
+        log_already_loaded = 3
+        OTHERS             = 4.
+    IF sy-subrc <> 0.
+      zcx_logger_error=>raise_syst( ).
+    ENDIF.
 
     CALL FUNCTION 'BAL_LOG_HDR_READ'
       EXPORTING
-        i_log_handle = lo_log->handle
+        i_log_handle  = lo_log->handle
       IMPORTING
-        e_s_log      = lo_log->header.
+        e_s_log       = lo_log->header
+      EXCEPTIONS
+        log_not_found = 1
+        OTHERS        = 2.
+    IF sy-subrc <> 0.
+      zcx_logger_error=>raise_syst( ).
+    ENDIF.
 
     r_log = lo_log.
   ENDMETHOD.
