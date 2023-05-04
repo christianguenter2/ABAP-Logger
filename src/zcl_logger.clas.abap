@@ -736,9 +736,7 @@ CLASS zcl_logger IMPLEMENTATION.
       EXCEPTIONS
         log_not_found = 1
         OTHERS        = 2.
-    IF sy-subrc <> 0.
-      RAISE EXCEPTION TYPE zcx_logger USING MESSAGE.
-    ENDIF.
+    ASSERT sy-subrc = 0.
 
   ENDMETHOD.
 
