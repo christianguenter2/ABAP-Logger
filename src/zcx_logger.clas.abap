@@ -5,6 +5,8 @@ CLASS zcx_logger DEFINITION
 
   PUBLIC SECTION.
 
+    INTERFACES: if_t100_dyn_msg.
+
     CONSTANTS zcx_logger TYPE sotr_conc VALUE 'B9D98DB24EAF1EDD8ED3241224D60A6A' ##NO_TEXT.
     DATA info TYPE string.
 

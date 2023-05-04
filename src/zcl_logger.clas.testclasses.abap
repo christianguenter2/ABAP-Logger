@@ -89,7 +89,8 @@ CLASS lcl_test DEFINITION FOR TESTING
       can_add_table_msg_context FOR TESTING RAISING cx_static_check,
       can_log_string_and_export FOR TESTING,
       can_change_description FOR TESTING RAISING cx_static_check,
-      can_log_callback_params FOR TESTING RAISING cx_static_check.
+      can_log_callback_params FOR TESTING RAISING cx_static_check,
+      can_log_refresh FOR TESTING RAISING cx_static_check.
 
 ENDCLASS.
 
@@ -1493,6 +1494,19 @@ CLASS lcl_test IMPLEMENTATION.
           act = <detail>-params-t_par ).
 
     ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD can_log_refresh.
+
+    anon_log->e( |Test W| ).
+
+    cl_abap_unit_assert=>assert_false( anon_log->is_empty( ) ).
+
+    anon_log->refresh( ).
+
+    cl_abap_unit_assert=>assert_true( anon_log->is_empty( ) ).
+
   ENDMETHOD.
 
 ENDCLASS.

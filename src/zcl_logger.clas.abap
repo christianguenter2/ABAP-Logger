@@ -727,4 +727,19 @@ CLASS zcl_logger IMPLEMENTATION.
     self = me.
   ENDMETHOD.
 
+
+  METHOD zif_logger~refresh.
+
+    CALL FUNCTION 'BAL_LOG_REFRESH'
+      EXPORTING
+        i_log_handle  = me->handle
+      EXCEPTIONS
+        log_not_found = 1
+        OTHERS        = 2.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_logger USING MESSAGE.
+    ENDIF.
+
+  ENDMETHOD.
+
 ENDCLASS.
