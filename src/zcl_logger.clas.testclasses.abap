@@ -57,19 +57,10 @@ CLASS lcl_test DEFINITION FOR TESTING
       can_create_anon_log FOR TESTING,
       can_create_named_log FOR TESTING,
       can_reopen_log FOR TESTING,
-<<<<<<< HEAD
       can_create_expiring_log_days FOR TESTING,
       can_create_expiring_log_date FOR TESTING,
       can_open_or_create FOR TESTING,
       can_add_log_context FOR TESTING,
-=======
-      can_create_expiring_log_days FOR TESTING RAISING cx_static_check,
-      can_create_expiring_log_date FOR TESTING RAISING cx_static_check,
-      can_open_or_create FOR TESTING RAISING cx_static_check,
-
-      can_add_log_context FOR TESTING RAISING cx_static_check,
-
->>>>>>> cf40865 (introduce zcx_logger_error and improve error handl)
       can_add_to_log FOR TESTING,
       can_add_to_named_log FOR TESTING,
       auto_saves_named_log FOR TESTING,
